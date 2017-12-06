@@ -1,0 +1,133 @@
+##Execute analysis with example Dataset
+
+Example [datasets](https://github.com/ariadnamorales/ABC_gene_trees/tree/master/exampleData) for three species and five loci.
+
+
+### Load dependecies and models
+```r
+#############################################
+#### Load libraries and custom functions ####
+#############################################
+
+library(phrapl)
+library(ape)
+library(partitions)
+setwd("test_ABC_gitHub")
+source("ABC_gene_trees/R.functions/exportPHRAPL2ABC_priorNORM_v2.R")
+source("ABC_gene_trees/R.functions/function.calculate.RF.KF.distance_v2.R")
+source("ABC_gene_trees/R.functions/batchMS.R")
+
+################################
+### Load phylogenetic models ###
+################################
+# Note: This step is perfomed exactly as described in: https://github.com/bomeara/phrapl/blob/master/doc/phrapl_vignette.Rmd
+#		using the function PrepSubsampling in PHRAPL
+#       It is not necessary to use 'GenerateMigrationIndividualsOneAtATime' 
+
+load("ABC_gene_trees/exampleData/migrationArray_3pop_3K_3models.rda")
+```
+Note: there is a preliminary code to import large phylogenetic trees (in newick format) into PHRAPL to generate a 'migrationArray' object.
+      If you are interested in using it, send an [email](ariadna.biologia@gmail.com) to the authors. For small phylogenetic trees (less tha 12 taxa), it is easy to build "by hand" a collapse matrix as described in [GenerateMigrationIndividualsOneAtATime] (https://github.com/bomeara/phrapl/blob/master/doc/phrapl_vignette.Rmd)
+
+
+
+### Simulate gene trees for each model
+```r
+#####################################
+### Step 1a: Simulate gene trees  ###
+#####################################
+
+Priorsize<-10 
+popVector<-c(2,2,2)
+nTrees=1 
+modelRange<-1:3
+thetaRange<-c(1,2)
+
+nDivEvents=2
+meanDivEvents=c(2, 3)
+sdDivEvents=c(0.05, 0.05)
+
+migrationRange<-1
+pathOutput<-getwd() 
+msLocation="ms" 
+SampleStats=FALSE
+
+exportPHRAPL2ABC_normPrior(migrationArray=migrationArray, Priorsize=Priorsize, popVector=popVector, nTrees=1, modelRange=c(1:3), thetaRange=thetaRange, nDivEvents=nDivEvents, meanDivEvents=meanDivEvents, sdDivEvents=sdDivEvents, migrationRange=migrationRange, pathOutput=pathOutput, msLocation="ms", SampleStats=FALSE)
+```
+
+
+### Subsample observed gene trees
+```r
+################################################
+### Step 1b: Subsample empirical Gene trees  ###
+################################################
+
+#Note: This step is perfomed exactly as described in: https://github.com/ariadnamorales/phrapl-manual/blob/master/4.Subsample_CreateInput.Rmd
+#		using the function PrepSubsampling in PHRAPL
+#       It is not necessary to use 'GetPermutationWeightsAcrossSubsamples'
+
+## Load libraries
+library(phrapl)
+
+## Load empirical gene trees and assignment file
+currentAssign<-read.table(paste0(getwd(), "/Data/assignFile.txt"), header=TRUE)
+currentTrees<-read.tree(paste0(getwd(), "/Data/trees.tre"))       # Trees with at least 2 alleles for all 11 species
+
+nloci<-5         
+popAssignments<-list(c(2,2,2)) 
+subsamplesPerGene<-10       
+
+
+## Do subsampling ----> loop to create one RDA file per locus
+dir.create("SubsampledTrees")
+for(locus in 1:length(currentTrees)){
+    observedTrees<-PrepSubsampling(assignmentsGlobal=currentAssign,observedTrees=currentTrees[[locus]],
+    	popAssignments=popAssignments,subsamplesPerGene=subsamplesPerGene,outgroup=FALSE,outgroupPrune=FALSE)
+    save(list="observedTrees",file=paste0(getwd(),"/SubsampledTrees/subsampledTrees_",locus,"_locus.rda"))
+    print(paste("Subsampling of locus ",locus, " done", sep=""))
+ }
+```
+
+### Compare simulated and observed trees, execute rejection step, and calculate support per locus
+```r
+####################################################################
+### Steps 2, 3 and 4: Calculate distances between simulated and  ###
+###                   emprirical gene trees                      ###
+###                   Rejection step                             ###
+###      			        Calculate support of each model per locus  ###
+####################################################################
+
+source("ABC_gene_trees/R.functions/function.calculate.RF.KF.distance_v2.R")
+
+
+pathOutput<-"test_ABC_gitHub"
+pathSubsampledTees<-"test_ABC_gitHub/SubsampledTrees"
+pathSimulatedTrees<-"test_ABC_gitHub/simulatedTrees"
+
+## This step is easy to parallelize because each locus can be analyzed independently
+calcDistances.reject(locus=1, pathOutput=pathOutput, pathSubsampledTrees=pathSubsampledTees, pathSimulatedTrees=pathSimulatedTrees)
+calcDistances.reject(locus=2, pathOutput=pathOutput, pathSubsampledTrees=pathSubsampledTees, pathSimulatedTrees=pathSimulatedTrees)
+calcDistances.reject(locus=3, pathOutput=pathOutput, pathSubsampledTrees=pathSubsampledTees, pathSimulatedTrees=pathSimulatedTrees)
+calcDistances.reject(locus=4, pathOutput=pathOutput, pathSubsampledTrees=pathSubsampledTees, pathSimulatedTrees=pathSimulatedTrees)
+calcDistances.reject(locus=5, pathOutput=pathOutput, pathSubsampledTrees=pathSubsampledTees, pathSimulatedTrees=pathSimulatedTrees)
+```
+
+
+### Calculate support across all loci
+```r
+################################################################
+### Step 5: Calculate support of each model across all loci  ###
+###                           				                       ###
+################################################################
+## Load libraries
+source("ABC_gene_trees/R.functions/summarizeResults.R")
+
+pathRetainedRF<-test_ABC_gitHub/summaryRetained.RF
+pathRetainedKF<-test_ABC_gitHub/summaryRetained.KF
+
+summarize.RF(pathRetainedRF)
+summarize.KF(pathRetainedKF)
+
+```
+
+
