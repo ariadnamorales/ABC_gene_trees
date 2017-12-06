@@ -17,5 +17,9 @@ ________
 
 -    [Download R functions]https://github.com/ariadnamorales)
 
+<img src="https://github.com/ariadnamorales/ABC_gene_trees/blob/master/images/workflow_ABCgeneTrees.pdf?raw=true" width="600" height="300" />
+
+
+
 
 Please send me an [email](ariadna.biologia@gmail.com) if you have comments.
