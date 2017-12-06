@@ -27,7 +27,7 @@ source("ABC_gene_trees/R.functions/batchMS.R")
 load("ABC_gene_trees/exampleData/migrationArray_3pop_3K_3models.rda")
 ```
 Note: there is a preliminary code to import large phylogenetic trees (in newick format) into PHRAPL to generate a 'migrationArray' object.
-      If you are interested in using it, send an [email](ariadna.biologia@gmail.com) to the authors. For small phylogenetic trees (less tha 12 taxa), it is easy to build "by hand" a collapse matrix as described in [GenerateMigrationIndividualsOneAtATime] (https://github.com/bomeara/phrapl/blob/master/doc/phrapl_vignette.Rmd)
+      If you are interested in using it, send an [email](ariadna.biologia@gmail.com) to the authors. For small phylogenetic trees (less tha 12 taxa), it is easy to build "by hand" a collapse matrix as described in [GenerateMigrationIndividualsOneAtATime](https://github.com/bomeara/phrapl/blob/master/doc/phrapl_vignette.Rmd)
 
 
 
