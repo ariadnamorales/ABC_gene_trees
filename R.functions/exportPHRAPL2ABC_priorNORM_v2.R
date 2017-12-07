@@ -8,7 +8,7 @@
 #
 #  Description: This function simulates trees and calculates summary statistics in ms under specified demographic models (built in PHRAPL, in a migrationArray object) 
 #					the main goal is to use the output gene trees to compare them with empirical gene trees
-#					Prior distributions for theta and migration is uniform, and for divergence times is normal.
+#					Prior distribution for theta and migration is uniform, and for divergence times is normal.
 #
 #  Dependencies: ms, PHRAPL, modified functions from PHRAPL (batchMS.R)
 
@@ -22,9 +22,9 @@
 #modelRange 				#range of models from 'migrationArray' that will be used for simulations
 #thetaRange 				#minimum and maximum values for theta (popSize) that will be used for simulations assuming a uniform distribution
 
-#nDivEvents
-#meanDivEvents
-#sdDivEvents
+#nDivEvents					#number of divergence events in models (e.g. 2 div events for a model with 3 species)			
+#meanDivEvents				#vector with the mean values of EACH divergence event that will be used for simulations assuming a normal
+#sdDivEvents				vector with the standard deviation values of EACH divergence event that will be used for simulations assuming a normal distribution
 
 #migrationRange 			#minimum and maximum values for migration rate that will be used for simulations assuming a uniform distribution
 #pathOutput 				#path where simulated trees will be saved, if null they will be saved in current working directory
